@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMC生产计划与物料控制学习平台</title>
+    <style>
+        * {margin: 0;padding: 0;box-sizing: border-box;font-family: "Microsoft Yahei", sans-serif;}
+        body {background-color: #f5f7fa;color: #333;line-height: 1.6;}
+        .header {background: linear-gradient(135deg, #2c3e50, #3498db);color: white;padding: 2rem 0;text-align: center;}
+        .container {max-width: 1200px;margin: 0 auto;padding: 2rem 1rem;}
+        .card {background: white;border-radius: 8px;box-shadow: 0 2px 10px rgba(0,0,0,0.1);padding: 1.5rem;margin-bottom: 1.5rem;}
+        .card h3 {color: #3498db;margin-bottom: 1rem;border-left: 4px solid #3498db;padding-left: 0.8rem;}
+        .nav {display: flex;flex-wrap: wrap;gap: 1rem;justify-content: center;margin: 2rem 0;}
+        .nav a {display: inline-block;padding: 0.8rem 1.5rem;background: #3498db;color: white;border-radius: 4px;text-decoration: none;transition: 0.3s;}
+        .nav a:hover {background: #2980b9;}
+        .video-box {width: 100%;aspect-ratio: 16/9;border-radius: 8px;overflow: hidden;margin: 1rem 0;}
+        .video-box iframe {width: 100%;height: 100%;border: none;}
+        .btn {display: inline-block;padding: 0.8rem 1.5rem;background: #27ae60;color: white;border-radius: 4px;text-decoration: none;margin: 0.5rem 0.5rem 0 0;}
+        .btn:hover {background: #219653;}
+        .footer {text-align: center;padding: 2rem 0;color: #7f8c8d;border-top: 1px solid #eee;margin-top: 3rem;}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>PMC生产计划与物料控制学习平台</h1>
+        <p>从零开始学PMC | 免费教程 | 实战工具 | 案例干货</p>
+    </div>
+
+    <div class="container">
+        <div class="nav">
+            <a href="#course">核心课程</a>
+            <a href="#tool">实战工具</a>
+            <a href="#video">视频教程</a>
+            <a href="#data">资料下载</a>
+        </div>
+
+        <div class="card" id="course">
+            <h3>PMC核心学习课程</h3>
+            <ul style="padding-left: 1.5rem;">
+                <li>入门篇：PMC岗位职责与核心流程</li>
+                <li>基础篇：生产计划编制与排程技巧</li>
+                <li>进阶篇：MRP物料需求计划运算</li>
+                <li>实战篇：库存控制与呆滞料处理</li>
+                <li>高阶篇：产销协同与异常处理机制</li>
+            </ul>
+        </div>
+
+        <div class="card" id="video">
+            <h3>免费视频教程</h3>
+            <p>提示：网站上线后，这里替换成你自己的B站/西瓜视频教程</p>
+            <div class="video-box">
+                <!-- 示例：B站嵌入代码，后续替换成你自己的视频地址 -->
+                <iframe src="//player.bilibili.com/player.html?aid=175350751&bvid=BV1W5411G7dH&cid=380913424&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+            </div>
+            <a href="https://www.bilibili.com/" target="_blank" class="btn">查看更多PMC教程</a>
+        </div>
+
+        <div class="card" id="tool">
+            <h3>PMC实战工具</h3>
+            <div style="display: flex;flex-wrap: wrap;gap: 1rem;">
+                <a href="#" class="btn">MRP自动计算器</a>
+                <a href="#" class="btn">生产排程模板</a>
+                <a href="#" class="btn">库存周转率计算器</a>
+                <a href="#" class="btn">产销协同计划表</a>
+            </div>
+        </div>
+
+        <div class="card" id="data">
+            <h3>学习资料免费下载</h3>
+            <ul style="padding-left: 1.5rem;">
+                <li><a href="#" target="_blank">PMC全流程操作手册SOP</a></li>
+                <li><a href="#" target="_blank">生产计划Excel模板大全</a></li>
+                <li><a href="#" target="_blank">物料管控与库存优化案例集</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 PMC学习平台 | 完全免费开源</p>
+    </div>
+</body>
+</html>
