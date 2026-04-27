@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>库存周转率计算器</title>
+    <style>
+        * {margin: 0;padding: 0;box-sizing: border-box;font-family: "Microsoft Yahei", sans-serif;}
+        body {background-color: #f5f7fa;padding: 2rem 1rem;}
+        .container {max-width: 700px;margin: 0 auto;background: white;padding: 2rem;border-radius: 8px;box-shadow: 0 2px 10px rgba(0,0,0,0.1);}
+        h1 {color: #2da44e;text-align: center;margin-bottom: 2rem;}
+        .form-group {margin-bottom: 1.5rem;}
+        label {display: block;margin-bottom: 0.5rem;font-weight: bold;color: #333;}
+        input {width: 100%;padding: 0.8rem;border: 1px solid #ddd;border-radius: 6px;font-size: 1rem;}
+        .btn {display: block;width: 100%;padding: 1rem;background: #2da44e;color: white;border: none;border-radius: 6px;font-size: 1.1rem;cursor: pointer;margin-top: 1rem;transition: 0.3s;}
+        .btn:hover {background: #22863a;}
+        .result {margin-top: 2rem;padding: 1.5rem;background: #f0f9f4;border-radius: 6px;display: none;}
+        .result h3 {color: #2da44e;margin-bottom: 1rem;}
+        .back-btn {display: inline-block;margin-top: 1.5rem;padding: 0.8rem 1.5rem;background: #1677ff;color: white;text-decoration: none;border-radius: 6px;}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>库存周转率计算器</h1>
+        <div class="form-group">
+            <label>计算周期（月）</label>
+            <input type="number" id="period" value="12" placeholder="比如12个月">
+        </div>
+        <div class="form-group">
+            <label>销售成本（周期内总成本，元）</label>
+            <input type="number" id="cost" placeholder="请输入数字">
+        </div>
+        <div class="form-group">
+            <label>期初库存金额（元）</label>
+            <input type="number" id="start" placeholder="请输入数字">
+        </div>
+        <div class="form-group">
+            <label>期末库存金额（元）</label>
+            <input type="number" id="end" placeholder="请输入数字">
+        </div>
+        <button class="btn" onclick="calc()">计算周转率</button>
+        <div class="result" id="result">
+            <h3>计算结果</h3>
+            <p>平均库存金额：<span id="avg"></span> 元</p>
+            <p>库存周转率：<span id="rate"></span> 次/年</p>
+            <p>库存周转天数：<span id="days"></span> 天</p>
+        </div>
+        <a href="index.html" class="back-btn">← 返回首页</a>
+    </div>
+    <script>
+        function calc() {
+            const period = parseFloat(document.getElementById('period').value) || 12;
+            const cost = parseFloat(document.getElementById('cost').value) || 0;
+            const start = parseFloat(document.getElementById('start').value) || 0;
+            const end = parseFloat(document.getElementById('end').value) || 0;
+            const avg = (start + end) / 2;
+            const rate = cost / avg;
+            const days = 365 / rate;
+            document.getElementById('avg').textContent = avg.toFixed(2);
+            document.getElementById('rate').textContent = rate.toFixed(2);
+            document.getElementById('days').textContent = days.toFixed(1);
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
