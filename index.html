@@ -5,105 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PMC生产计划与物料控制学习平台</title>
     <style>
-        * {margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif;}
-        body {background:#f5f7fa;color:#333;line-height:1.6;}
-        a {text-decoration:none;}
+        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif;}
+        body{background:#f0f2f5;color:#333;line-height:1.6;}
+        a{text-decoration:none;}
 
-        /* 顶部横幅 */
-        .hero {
-            background: linear-gradient(135deg, #1677ff 0%, #0a50d4 100%);
-            color: white;
-            text-align: center;
-            padding: 2rem 1rem 1.5rem;
-        }
-        .hero h1 {font-size:1.8rem;margin-bottom:0.5rem;}
-        .hero p {font-size:0.95rem;opacity:0.88;}
+        .hero{background:linear-gradient(135deg,#1677ff,#0a50d4);color:white;text-align:center;padding:2.5rem 1rem 2rem;}
+        .hero h1{font-size:1.9rem;margin-bottom:0.5rem;}
+        .hero p{font-size:0.95rem;opacity:0.88;}
 
-        /* 导航栏 */
-        .nav-top {
-            display:flex;flex-wrap:wrap;gap:0.8rem;
-            justify-content:center;padding:1.2rem 1rem;
-            background:#fff;border-bottom:1px solid #eee;
-            position:sticky;top:0;z-index:999;
-        }
-        .nav-top a {
-            padding:0.6rem 1.4rem;background:#1677ff;color:white;
-            border-radius:6px;transition:0.3s;font-size:0.95rem;
-        }
-        .nav-top a:hover {background:#4096ff;}
+        .nav-top{display:flex;flex-wrap:wrap;gap:0.7rem;justify-content:center;padding:1.1rem 1rem;background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:999;box-shadow:0 1px 6px rgba(0,0,0,0.06);}
+        .nav-top a{padding:0.55rem 1.3rem;background:#1677ff;color:white;border-radius:20px;font-size:0.92rem;transition:0.2s;}
+        .nav-top a:hover{background:#4096ff;}
 
-        .container {max-width:820px;margin:0 auto;padding:0 1rem 3rem;}
+        .container{max-width:860px;margin:0 auto;padding:0 1rem 4rem;}
 
-        /* 卡片 */
-        .card {
-            background:white;border-radius:10px;
-            box-shadow:0 2px 10px rgba(0,0,0,0.08);
-            padding:1.8rem;margin-top:1.8rem;
-        }
-        .card h2 {
-            color:#1677ff;margin-bottom:1.2rem;font-size:1.15rem;
-            border-left:4px solid #1677ff;padding-left:0.8rem;
-        }
+        .card{background:white;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.07);padding:1.8rem;margin-top:2rem;}
+        .card-title{display:flex;align-items:center;gap:0.7rem;margin-bottom:1.4rem;}
+        .card-title h2{color:#1677ff;font-size:1.12rem;border-left:4px solid #1677ff;padding-left:0.75rem;}
 
         /* 课程列表 */
-        .course-list {list-style:none;padding:0;}
-        .course-list li {
-            padding:0.6rem 0.8rem;margin-bottom:0.4rem;
-            background:#f8fbff;border-radius:6px;
-            border-left:3px solid #1677ff;font-size:0.95rem;
-        }
+        .course-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:0.75rem;}
+        .course-item{background:#f0f7ff;border-radius:8px;padding:0.65rem 1rem;font-size:0.9rem;border-left:3px solid #1677ff;color:#333;}
+        .course-item span{display:inline-block;background:#1677ff;color:white;font-size:0.72rem;padding:1px 7px;border-radius:10px;margin-right:6px;}
 
-        /* 视频播放器 */
-        .video-item {margin-top:1.8rem;}
-        .video-item:first-child {margin-top:0;}
-        .video-item h4 {font-weight:bold;margin-bottom:0.6rem;color:#333;font-size:1rem;}
-        .video-box {
-            width:100%;aspect-ratio:16/9;border-radius:8px;
-            overflow:hidden;background:#000;
-        }
-        .video-box video {width:100%;height:100%;object-fit:contain;}
-        .video-tip {
-            color:#666;font-size:0.88rem;margin-bottom:1rem;
-            background:#fff8e6;padding:0.6rem 1rem;border-radius:6px;
-            border-left:3px solid #fa8c16;
-        }
+        /* 视频分类 Tab */
+        .tab-nav{display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.4rem;}
+        .tab-btn{padding:0.45rem 1rem;border-radius:20px;border:1.5px solid #1677ff;color:#1677ff;background:transparent;cursor:pointer;font-size:0.88rem;transition:0.2s;font-family:inherit;}
+        .tab-btn.active,.tab-btn:hover{background:#1677ff;color:white;}
 
-        /* 工具按钮 */
-        .tool-group {display:flex;flex-wrap:wrap;gap:1rem;margin-top:0.5rem;}
-        .tool-btn {
-            padding:0.75rem 1.4rem;background:#00b42a;color:white;
-            border-radius:6px;transition:0.3s;font-size:0.9rem;
-        }
-        .tool-btn:hover {background:#00a026;transform:translateY(-1px);}
+        .video-category{display:none;}
+        .video-category.active{display:block;}
+
+        .video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:1.5rem;}
+        .video-item{background:#fafafa;border-radius:10px;overflow:hidden;border:1px solid #eee;}
+        .video-item h4{padding:0.7rem 1rem 0.4rem;font-size:0.9rem;color:#333;font-weight:600;}
+        .video-box{aspect-ratio:16/9;background:#000;}
+        .video-box video{width:100%;height:100%;object-fit:contain;display:block;}
+        .video-tip{background:#fff8e6;border-left:3px solid #fa8c16;padding:0.6rem 1rem;font-size:0.85rem;color:#666;margin-bottom:1.2rem;border-radius:0 6px 6px 0;}
+
+        /* 工具 */
+        .tool-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;}
+        .tool-btn{display:flex;flex-direction:column;align-items:center;gap:0.4rem;padding:1.1rem 1rem;background:#f0fff4;border:1.5px solid #00b42a;border-radius:10px;color:#00812a;font-size:0.88rem;font-weight:600;transition:0.2s;cursor:pointer;}
+        .tool-btn:hover{background:#00b42a;color:white;}
+        .tool-btn .icon{font-size:1.5rem;}
 
         /* 资料下载 */
-        .data-list {list-style:none;padding:0;}
-        .data-list li {
-            margin-bottom:0.6rem;padding:0.7rem 1rem;
-            background:#f8fbff;border-radius:6px;
-            display:flex;align-items:center;gap:0.6rem;
-        }
-        .data-list li::before {content:"📄";font-size:1rem;}
-        .data-list li a {color:#1677ff;font-size:0.95rem;}
-        .data-list li a:hover {text-decoration:underline;}
+        .data-list{display:grid;gap:0.7rem;}
+        .data-item{display:flex;align-items:center;gap:0.9rem;padding:0.85rem 1.1rem;background:#f8fbff;border-radius:8px;border:1px solid #e0eeff;transition:0.2s;}
+        .data-item:hover{background:#e8f0fe;border-color:#b3cfff;}
+        .data-item .file-icon{font-size:1.3rem;flex-shrink:0;}
+        .data-item a{color:#1677ff;font-size:0.92rem;flex:1;}
+        .data-item .dl-tag{background:#e8f0fe;color:#1677ff;font-size:0.75rem;padding:2px 8px;border-radius:10px;flex-shrink:0;}
 
-        /* 页脚 */
-        .footer {
-            text-align:center;padding:2rem 1rem;
-            color:#999;border-top:1px solid #eee;
-            margin-top:3rem;font-size:0.9rem;
-        }
+        .footer{text-align:center;padding:2rem 1rem;color:#aaa;border-top:1px solid #eee;margin-top:2rem;font-size:0.88rem;}
     </style>
 </head>
 <body>
 
-<!-- 顶部横幅 -->
 <div class="hero">
     <h1>PMC生产计划与物料控制学习平台</h1>
     <p>从零开始学PMC | 免费教程 | 实战工具 | 案例干货</p>
 </div>
 
-<!-- 导航 -->
 <div class="nav-top">
     <a href="#course">核心课程</a>
     <a href="#video">视频教程</a>
@@ -113,85 +76,437 @@
 
 <div class="container">
 
-    <!-- 1. 核心课程 -->
+    <!-- 核心课程 -->
     <div class="card" id="course">
-        <h2>PMC核心学习课程</h2>
-        <ul class="course-list">
-            <li>入门篇：PMC岗位职责与核心流程</li>
-            <li>基础篇：生产计划编制与排程技巧</li>
-            <li>进阶篇：MRP物料需求计划运算</li>
-            <li>实战篇：库存控制与呆滞料处理</li>
-            <li>高阶篇：产销协同与异常处理机制</li>
-            <li>面试篇：PMC计划员面试高频问题与回答</li>
-            <li>新人篇：入职PMC稳工避坑指南</li>
-        </ul>
+        <div class="card-title"><h2>PMC核心学习课程</h2></div>
+        <div class="course-grid">
+            <div class="course-item"><span>入门</span>PMC岗位职责与核心流程</div>
+            <div class="course-item"><span>基础</span>生产计划编制与排程技巧</div>
+            <div class="course-item"><span>进阶</span>MRP物料需求计划运算</div>
+            <div class="course-item"><span>实战</span>库存控制与呆滞料处理</div>
+            <div class="course-item"><span>高阶</span>产销协同与异常处理机制</div>
+            <div class="course-item"><span>面试</span>PMC计划员面试高频问题与回答</div>
+            <div class="course-item"><span>新人</span>入职PMC稳工避坑指南</div>
+        </div>
     </div>
 
-    <!-- 2. 视频教程（直接用COS地址在线播放） -->
+    <!-- 视频教程（6大分类Tab） -->
     <div class="card" id="video">
-        <h2>PMC系统学习视频教程</h2>
-        <p class="video-tip">💡 提示：视频在腾讯云托管，点击即可在线播放，无需下载</p>
+        <div class="card-title"><h2>PMC系统学习视频教程</h2></div>
+        <p class="video-tip">💡 视频在腾讯云托管，点击即可在线播放，无需下载 | 共33个实战视频</p>
 
-        <!-- ✅ 视频1：把 src 里的地址换成你的腾讯云COS对象地址 -->
-        <div class="video-item">
-            <h4>01、排产的通用知识及人力计划制定</h4>
-            <div class="video-box">
-                <video controls preload="metadata">
-                    <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E6%8E%92%E4%BA%A7%E7%9A%84%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86%E5%8F%8A%E4%BA%BA%E5%8A%9B%E8%AE%A1%E5%88%92%E5%88%B6%E5%AE%9A.mp4" type="video/mp4">
-                 </video>
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab(this,'cat1')">📋 生产计划与排产</button>
+            <button class="tab-btn" onclick="switchTab(this,'cat2')">📦 物料管控与库存</button>
+            <button class="tab-btn" onclick="switchTab(this,'cat3')">🔢 MRP与BOM</button>
+            <button class="tab-btn" onclick="switchTab(this,'cat4')">🏭 工厂运营与ERP</button>
+            <button class="tab-btn" onclick="switchTab(this,'cat5')">⏱ 标准工时与效率</button>
+            <button class="tab-btn" onclick="switchTab(this,'cat6')">🎯 求职与职场成长</button>
+        </div>
+
+        <!-- ① 生产计划与排产 -->
+        <div class="video-category active" id="cat1">
+            <div class="video-grid">
+
+                <div class="video-item">
+                    <h4>排产的通用知识及人力计划制定</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E6%8E%92%E4%BA%A7%E7%9A%84%E9%80%9A%E7%94%A8%E7%9F%A5%E8%AF%86%E5%8F%8A%E4%BA%BA%E5%8A%9B%E8%AE%A1%E5%88%92%E5%88%B6%E5%AE%9A.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>生产计划日常管理</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E7%94%9F%E4%BA%A7%E8%AE%A1%E5%88%92%E6%97%A5%28%E6%97%A9%29%E4%BC%9A%E7%9A%84%E9%87%8D%E8%A6%81%E6%80%A7.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>生产计划（评审、例会、看板管理）</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E7%94%9F%E4%BA%A7%E8%AE%A1%E5%88%92%EF%BC%88%E8%AF%84%E5%AE%A1%EF%BC%89%E6%9C%88%E4%BC%9A%E3%80%81%E5%91%A8%E4%BC%9A%E7%9A%84%E9%87%8D%E8%A6%81%E6%80%A7_.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>计划运作流程</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E7%94%9F%E4%BA%A7%E8%AE%A1%E5%88%92%EF%BC%88%E8%AF%84%E5%AE%A1%EF%BC%89%E6%9C%88%E4%BC%9A%E3%80%81%E5%91%A8%E4%BC%9A%E7%9A%84%E9%87%8D%E8%A6%81%E6%80%A7_.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>学会计划员的思维方式</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E7%94%9F%E4%BA%A7%E8%AE%A1%E5%88%92%EF%BC%88%E8%AF%84%E5%AE%A1%EF%BC%89%E6%9C%88%E4%BC%9A%E3%80%81%E5%91%A8%E4%BC%9A%E7%9A%84%E9%87%8D%E8%A6%81%E6%80%A7_.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>接客户订单的生产计划安排</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E6%8E%A5%E5%AE%A2%E6%88%B7%E8%AE%A2%E5%8D%95%E5%90%8E%E5%90%84%E5%9C%BA%E6%99%AF%E7%94%9F%E7%AE%A1%E6%8E%92%E4%BA%A7%E3%80%81%E7%89%A9%E6%8E%A7%E8%BF%BD%E6%96%99%E6%96%B9%E6%A1%88.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>新人计划员如何避坑</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E6%96%B0%E4%BA%BA%E8%AE%A1%E5%88%92%E5%91%98%E9%9D%A2%E4%B8%B4%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88_.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>怎么追欠料</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E6%80%8E%E4%B9%88%E8%BF%BD%E6%AC%A0%E6%96%99%E3%80%81%E6%9F%A5%E7%89%A9%E6%96%99%E9%BD%90%E5%A5%97%EF%BC%88%E9%9D%A2%E8%AF%95PMC%E7%A8%B3%E4%BA%86%EF%BC%89.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <!-- ✅ 视频2 -->
-        <div class="video-item">
-            <h4>02、标准工时的认识、测算、制作方法</h4>
-            <div class="video-box">
-                <video controls preload="metadata">
-                    <source src="【这里粘贴腾讯云COS视频2的对象地址】" type="video/mp4">
-                    您的浏览器不支持视频播放
-                </video>
+        <!-- ② 物料管控与库存 -->
+        <div class="video-category" id="cat2">
+            <div class="video-grid">
+
+                <div class="video-item">
+                    <h4>物料ABC分类管理</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E7%89%A9%E6%96%99ABC%E5%88%86%E7%B1%BB%E4%BD%9C%E7%94%A8%E4%B8%8E%E5%8E%9F%E7%90%86.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>物料齐套率管控方法</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E7%89%A9%E6%96%99%E9%BD%90%E5%A5%97%E7%8E%87%E3%80%81%E7%89%A9%E6%96%99%E5%87%86%E6%97%B6%E4%BA%A4%E8%B4%A7%E7%8E%87%E7%BB%9F%E8%AE%A1%E6%96%B9%E6%B3%95.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>物料时效性管控</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E7%89%A9%E6%96%99%E5%87%86%E6%97%B6%E4%BA%A4%E8%B4%A7%E7%8E%87%28%E9%BD%90%E5%A5%97%E7%8E%87%29%E6%94%B9%E5%96%84%E6%96%B9%E6%B3%95.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>跟单一天的工作流</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E7%89%A9%E6%8E%A7%E4%B8%80%E5%A4%A9%E5%B7%A5%E4%BD%9C%E5%86%85%E5%AE%B9%EF%BC%8820%E9%A1%B9%E4%BB%BB%E5%8A%A1%E8%AF%A6%E7%BB%86%E7%89%88.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>采滞料数据处理方法</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E5%91%86%E6%BB%9E%E6%96%99%E6%95%B0%E6%8D%AE%E5%88%86%E6%9E%90%E3%80%81%E9%98%B2%E5%86%8D%E5%8F%91%E6%8E%AA%E6%96%BD.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>安全库存与物料需求计算</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E5%AE%89%E5%85%A8%E5%BA%93%E5%AD%98%E3%80%81%E7%89%A9%E6%96%99%E9%BD%90%E5%A5%97%E7%8E%87%E8%AE%B2%E8%A7%A3.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>怎么做好库存管理</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E6%80%8E%E4%B9%88%E5%81%9A%E5%A5%BD%E5%BA%93%E5%AD%98%E7%AE%A1%E6%8E%A7.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>物控MRP表格制作（上）</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E7%89%A9%E6%8E%A7MRP%E8%A1%A8%E6%A0%BC%E3%80%81%E5%87%BD%E6%95%B0%E8%AE%B2%E8%A7%A3%EF%BC%88%E8%AF%A6%E7%BB%86%E7%89%88%EF%BC%89.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <!-- ✅ 视频3 -->
-        <div class="video-item">
-            <h4>03、安全库存、物料齐套率管控方法</h4>
-            <div class="video-box">
-                <video controls preload="metadata">
-                    <source src="【这里粘贴腾讯云COS视频3的对象地址】" type="video/mp4">
-                    您的浏览器不支持视频播放
-                </video>
+        <!-- ③ MRP与BOM -->
+        <div class="video-category" id="cat3">
+            <div class="video-grid">
+
+                <div class="video-item">
+                    <h4>物控MRP表格制作（下）</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E7%89%A9%E6%8E%A7MRP%E8%A1%A8%E6%A0%BC%E3%80%81%E5%87%BD%E6%95%B0%E8%AE%B2%E8%A7%A3.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>多阶BOM的制作方法</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%28%E5%A4%9A%E9%98%B6%29BOM%E7%9A%84%E8%AE%A4%E8%AF%86.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>制作生产工单</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E5%88%B6%E4%BD%9C%E7%94%9F%E4%BA%A7%E8%AE%A1%E5%88%92%E3%80%81%E5%87%BA%E8%B4%A7%E8%AE%A1%E5%88%92%EF%BC%88%E8%AF%A6%E7%BB%86%E7%89%88%EF%BC%89.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>订单评审流程与方法</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E8%AE%A2%E5%8D%95%E8%AF%84%E5%AE%A1%E3%80%81%E8%AE%A2%E5%8D%95%E5%B1%A5%E8%A1%8C.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
             </div>
         </div>
-    </div>
 
-    <!-- 3. 实战工具 -->
+        <!-- ④ 工厂运营与ERP -->
+        <div class="video-category" id="cat4">
+            <div class="video-grid">
+
+                <div class="video-item">
+                    <h4>ERP"黑话"入门（一）</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/ERP%EF%BC%82%E9%BB%91%E8%AF%9D%EF%BC%82%E3%80%81%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD%E8%AE%B2%E8%A7%A3.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>ERP"黑话"入门（二）</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="【替换：126、约好了客户...14日.mp4 的COS地址】" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>工厂"黑话"解读（一）</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E5%B7%A5%E5%8E%82%EF%BC%82%E9%BB%91%E8%AF%9D%EF%BC%82%E3%80%81%E4%B8%93%E4%B8%9A%E6%9C%AF%E8%AF%AD%E8%AE%B2%E8%A7%A3.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>工厂"黑话"解读（二）</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="【替换：203、怎么与工厂...11日.mp4 的COS地址】" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>全厂年终大盘点操作方法</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E5%85%A8%E5%8E%82%E5%B9%B4%E7%BB%88%E5%A4%A7%E7%9B%98%E7%82%B9_.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>全产工单的讲解与应用</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E7%94%9F%E4%BA%A7%E5%B7%A5%E5%8D%95%E8%AE%B2%E8%A7%A3%28%E8%AE%A1%E5%88%92%E5%91%98%E5%BF%85%E7%9F%A5%E7%9F%A5%E8%AF%86%E7%82%B9%29.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ⑤ 标准工时与效率 -->
+        <div class="video-category" id="cat5">
+            <div class="video-grid">
+
+                <div class="video-item">
+                    <h4>标准工时的认识与测算</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E6%A0%87%E5%87%86%E5%B7%A5%E6%97%B6%E7%9A%84%E8%AE%A4%E8%AF%86%E3%80%81%E6%B5%8B%E7%AE%97%E3%80%81%E5%88%B6%E4%BD%9C.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>标准工时制作方法详解</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E8%B7%9F%E5%8D%95%E7%9A%84%E4%B8%80%E5%A4%A9%E5%B7%A5%E4%BD%9C%E5%86%85%E5%AE%B9%EF%BC%8C%E8%AE%A1%E5%88%92%E9%83%A8%E5%91%A8%E6%8A%A5%E8%AF%A6%E7%BB%86%E7%89%88.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>人机机法环分析与应用</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E4%BA%BA%E6%9C%BA%E6%96%99%E6%B3%95%E7%8E%AF%E6%B5%8B%E5%9C%A8%E8%AE%A1%E5%88%92%E7%AB%AF%E7%9A%84%E5%BA%94%E7%94%A8%28%E9%9D%A2%E8%AF%95%E3%80%81%E5%B7%A5%E4%BD%9C%E9%83%BD%E6%9C%89%E7%94%A8%29.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ⑥ 求职与职场成长 -->
+        <div class="video-category" id="cat6">
+            <div class="video-grid">
+
+                <div class="video-item">
+                    <h4>25届大专面试技巧</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/25%E5%B1%8A%E5%A4%A7%E4%B8%93%E9%9D%A2%E8%AF%95%E3%80%81%E5%85%A5%E8%81%8C%E8%AE%A1%E5%88%92%E5%91%98%E8%A2%AB%E9%A2%86%E5%AF%BC%E7%8B%A0%E5%A4%B8%EF%BC%8C%E5%B9%B2%E8%B4%A7%E5%88%86%E4%BA%AB%EF%BC%88%E5%B7%A5%E5%8E%82%E5%8A%9E%E5%85%AC%E5%AE%A4%E5%B2%97%EF%BC%89.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>年薪30万的成长路径</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E5%B9%B4%E8%96%AA30%E4%B8%8739%E5%B2%81PMC%E7%BB%8F%E7%90%86%E7%9A%84%E5%B9%B2%E8%B4%A7%E5%88%86%E4%BA%AB%EF%BC%9A%E8%B6%8A%E5%8D%97%E5%B7%A5%E4%BD%9C8%E5%B9%B4.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>季外PMC的职场优势</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E5%A7%94%E5%A4%96PMC%E4%BC%98%E5%8A%BF%E3%80%81%E5%8A%A3%E5%8A%BF%E4%B8%8E%E7%A0%B4%E5%B1%80%EF%BC%9A%E6%8B%BF%E4%B8%8B%E9%87%87%E8%B4%AD%E5%B2%97%E5%92%8C%E9%AB%98%E8%96%AA%E8%AE%A1%E5%88%92%E5%91%98_.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+                <div class="video-item">
+                    <h4>小白怎么面试PMC岗位</h4>
+                    <div class="video-box">
+                        <video controls preload="metadata">
+                            <source src="https://pmc-video-2026-1426215486.cos.ap-shanghai.myqcloud.com/%E5%B0%8F%E7%99%BD%E6%80%8E%E4%B9%88%E9%9D%A2%E8%AF%95%E8%AE%A1%E5%88%92%E8%B7%9F%E5%8D%95.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div><!-- /card video -->
+
+    <!-- 实战工具 -->
     <div class="card" id="tool">
-        <h2>PMC实战工具合集</h2>
-        <div class="tool-group">
-            <a href="mrp-calculator.html" class="tool-btn" target="_blank">🧮 MRP自动计算器</a>
-            <a href="#" class="tool-btn">📋 生产排程模板</a>
-            <a href="#" class="tool-btn">📊 库存周转率计算器</a>
-            <a href="#" class="tool-btn">🔄 产销协同计划表</a>
+        <div class="card-title"><h2>PMC实战工具合集</h2></div>
+        <div class="tool-grid">
+            <a href="mrp-calculator.html" class="tool-btn" target="_blank">
+                <span class="icon">🧮</span>MRP自动计算器
+            </a>
+            <a href="#" class="tool-btn">
+                <span class="icon">📋</span>生产排程模板
+            </a>
+            <a href="#" class="tool-btn">
+                <span class="icon">📊</span>库存周转率计算器
+            </a>
+            <a href="#" class="tool-btn">
+                <span class="icon">🔄</span>产销协同计划表
+            </a>
         </div>
     </div>
 
-    <!-- 4. 资料下载（把链接换成你的百度网盘分享链接） -->
+    <!-- 资料下载 -->
     <div class="card" id="data">
-        <h2>学习资料免费下载</h2>
-        <ul class="data-list">
-            <li><a href="【百度网盘链接1】" target="_blank">PMC全流程操作手册SOP</a></li>
-            <li><a href="【百度网盘链接2】" target="_blank">生产计划Excel模板大全</a></li>
-            <li><a href="【百度网盘链接3】" target="_blank">物料管控与库存优化案例集</a></li>
-            <li><a href="【百度网盘链接4】" target="_blank">PMC面试高频100题与答案</a></li>
-            <li><a href="【百度网盘链接5】" target="_blank">BOM表制作与MRP运算模板</a></li>
-        </ul>
+        <div class="card-title"><h2>学习资料免费下载</h2></div>
+        <div class="data-list">
+            <div class="data-item">
+                <span class="file-icon">📄</span>
+                <a href="【百度网盘链接1】" target="_blank">PMC全流程操作手册SOP</a>
+                <span class="dl-tag">免费</span>
+            </div>
+            <div class="data-item">
+                <span class="file-icon">📊</span>
+                <a href="https://pan.baidu.com/s/1gF0mtagljrcBAwSyVF_3Ew?pwd=1234" target="_blank">生产计划Excel模板大全</a>
+                <span class="dl-tag">免费</span>
+            </div>
+            <div class="data-item">
+                <span class="file-icon">📦</span>
+                <a href="【百度网盘链接3】" target="_blank">物料管控与库存优化案例集</a>
+                <span class="dl-tag">免费</span>
+            </div>
+            <div class="data-item">
+                <span class="file-icon">💬</span>
+                <a href="【百度网盘链接4】" target="_blank">PMC面试高频100题与答案</a>
+                <span class="dl-tag">免费</span>
+            </div>
+            <div class="data-item">
+                <span class="file-icon">📐</span>
+                <a href="【百度网盘链接5】" target="_blank">BOM表制作与MRP运算模板</a>
+                <span class="dl-tag">免费</span>
+            </div>
+        </div>
     </div>
 
 </div>
 
-<div class="footer">
-    <p>© 2026 PMC生产计划学习平台 | 专注PMC新人成长</p>
-</div>
+<div class="footer">© 2026 PMC生产计划学习平台 | 专注PMC新人成长</div>
+
+<script>
+function switchTab(btn, catId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.video-category').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(catId).classList.add('active');
+}
+</script>
 </body>
 </html>
