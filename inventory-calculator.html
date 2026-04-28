@@ -1,1 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>库存周转率计算器 - PMC工具</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif;}
+body{background:#f4f6fb;padding:2rem 1rem;min-height:100vh;}
+.wrap{max-width:700px;margin:0 auto;}
+.header{background:linear-gradient(135deg,#1677ff,#0a50d4);color:#fff;border-radius:16px 16px 0 0;padding:2rem 2rem 1.8rem;}
+.header h1{font-size:1.4rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.6rem;}
+.header p{font-size:.88rem;opacity:.85;}
+.body{background:#fff;border-radius:0 0 16px 16px;padding:2rem;border:1px solid #eaecf4;border-top:none;box-shadow:0 4px 20px rgba(0,0,0,.08);}
 
+.section-label{font-size:.75rem;font-weight:700;color:#1677ff;letter-spacing:2px;text-transform:uppercase;margin:1.6rem 0 .8rem;padding-bottom:.4rem;border-bottom:1px solid #eef2ff;}
+.section-label:first-of-type{margin-top:0;}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.form-group{margin-bottom:1rem;}
+.form-group.full{grid-column:1/-1;}
+label{display:flex;justify-content:space-between;align-items:center;font-size:.88rem;color:#444;font-weight:600;margin-bottom:.5rem;}
+label .hint{font-size:.75rem;color:#aaa;font-weight:400;}
+input,select{width:100%;padding:.7rem 1rem;border:1.5px solid #e0e4f0;border-radius:8px;font-size:.92rem;font-family:inherit;transition:.2s;outline:none;background:#fafbff;}
+input:focus,select:focus{border-color:#1677ff;background:#fff;box-shadow:0 0 0 3px rgba(22,119,255,.1);}
+
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:1.4rem;}
+.calc-btn{padding:.9rem;background:#1677ff;color:#fff;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;}
+.calc-btn:hover{background:#4096ff;transform:translateY(-1px);}
+.reset-btn{padding:.9rem;background:#fff;color:#666;border:1.5px solid #ddd;border-radius:10px;font-size:.95rem;cursor:pointer;font-family:inherit;transition:.2s;}
+.reset-btn:hover{border-color:#1677ff;color:#1677ff;}
+
+.result{display:none;margin-top:1.8rem;}
+.result-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-bottom:1.2rem;}
+.r-card{background:#f8faff;border:1px solid #deeeff;border-radius:12px;padding:1.1rem;text-align:center;}
+.r-card .lbl{font-size:.75rem;color:#888;margin-bottom:.5rem;}
+.r-card .val{font-size:1.6rem;font-weight:700;color:#1677ff;line-height:1;}
+.r-card .unit{font-size:.72rem;color:#aaa;margin-top:.3rem;}
+.r-card.big{background:linear-gradient(135deg,#1677ff,#0a50d4);border:none;}
+.r-card.big .lbl{color:rgba(255,255,255,.75);}
+.r-card.big .val{color:#fff;font-size:2rem;}
+.r-card.big .unit{color:rgba(255,255,255,.65);}
+
+.health-bar{background:#f0f2f8;border-radius:12px;padding:1.2rem;margin-bottom:1rem;}
+.health-bar h4{font-size:.88rem;color:#444;margin-bottom:.8rem;}
+.bar-bg{background:#e0e4f0;border-radius:10px;height:10px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:10px;transition:width .8s ease;}
+.health-tags{display:flex;justify-content:space-between;font-size:.7rem;color:#aaa;margin-top:.4rem;}
+
+.advice-box{border-radius:10px;padding:1rem 1.2rem;font-size:.88rem;line-height:1.7;}
+.advice-box.good{background:#f0fff4;border-left:3px solid #00b42a;color:#00612a;}
+.advice-box.ok{background:#fffbf0;border-left:3px solid #ffa940;color:#7d4e00;}
+.advice-box.bad{background:#fff2f0;border-left:3px solid #ff4d4f;color:#a8071a;}
+
+.back{display:inline-flex;align-items:center;gap:.4rem;margin-top:1.5rem;color:#1677ff;font-size:.88rem;text-decoration:none;}
+.back:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>📊 库存周转率计算器</h1>
+    <p>输入库存与销售数据，一键计算周转率、周转天数，自动评估库存健康度</p>
+  </div>
+  <div class="body">
+
+    <div class="section-label">销售数据</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>销售成本（元）<span class="hint">损益表获取</span></label>
+        <input type="number" id="cogs" placeholder="例：1200000">
+      </div>
+      <div class="form-group">
+        <label>统计周期<span class="hint">选择</span></label>
+        <select id="period">
+          <option value="30">月度（30天）</option>
+          <option value="90">季度（90天）</option>
+          <option value="365" selected>年度（365天）</option>
+          <option value="0">自定义天数</option>
+        </select>
+      </div>
+      <div class="form-group" id="custom-days-group" style="display:none;">
+        <label>自定义天数</label>
+        <input type="number" id="custom-days" placeholder="输入天数">
+      </div>
+    </div>
+
+    <div class="section-label">库存数据</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>期初库存金额（元）<span class="hint">期初余额</span></label>
+        <input type="number" id="inv_begin" placeholder="例：300000">
+      </div>
+      <div class="form-group">
+        <label>期末库存金额（元）<span class="hint">期末余额</span></label>
+        <input type="number" id="inv_end" placeholder="例：200000">
+      </div>
+    </div>
+
+    <div class="section-label">行业参照（选填）</div>
+    <div class="form-row">
+      <div class="form-group full">
+        <label>所属行业<span class="hint">用于基准对比</span></label>
+        <select id="industry">
+          <option value="6">电子制造（基准6次/年）</option>
+          <option value="8">快消品（基准8次/年）</option>
+          <option value="4">机械设备（基准4次/年）</option>
+          <option value="5">汽车零部件（基准5次/年）</option>
+          <option value="6">其他制造业（基准6次/年）</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="calc-btn" onclick="calc()">立即计算</button>
+      <button class="reset-btn" onclick="reset()">重新填写</button>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-grid">
+        <div class="r-card">
+          <div class="lbl">平均库存金额</div>
+          <div class="val" id="r-avg">—</div>
+          <div class="unit">元</div>
+        </div>
+        <div class="r-card big">
+          <div class="lbl">库存周转率</div>
+          <div class="val" id="r-turn">—</div>
+          <div class="unit">次 / 统计周期</div>
+        </div>
+        <div class="r-card big">
+          <div class="lbl">库存周转天数</div>
+          <div class="val" id="r-days">—</div>
+          <div class="unit">天 / 次</div>
+        </div>
+        <div class="r-card">
+          <div class="lbl">与行业基准对比</div>
+          <div class="val" id="r-vs" style="font-size:1.1rem">—</div>
+          <div class="unit" id="r-vs-tip">—</div>
+        </div>
+      </div>
+
+      <div class="health-bar">
+        <h4>库存健康度评估</h4>
+        <div class="bar-bg"><div class="bar-fill" id="bar-fill" style="width:0%;background:#1677ff;"></div></div>
+        <div class="health-tags"><span>极低风险</span><span>正常</span><span>优秀</span></div>
+      </div>
+
+      <div class="advice-box" id="advice-box">
+        <span id="advice-text"></span>
+      </div>
+    </div>
+
+    <a href="index.html" class="back">← 返回首页</a>
+  </div>
+</div>
+
+<script>
+document.getElementById('period').addEventListener('change',function(){
+  document.getElementById('custom-days-group').style.display=this.value==='0'?'block':'none';
+});
+function fmt(n){return n>=10000?(n/10000).toFixed(2)+'万':n.toLocaleString('zh-CN',{maximumFractionDigits:0});}
+function calc(){
+  const cogs=parseFloat(document.getElementById('cogs').value)||0;
+  const b=parseFloat(document.getElementById('inv_begin').value)||0;
+  const e=parseFloat(document.getElementById('inv_end').value)||0;
+  let days=parseInt(document.getElementById('period').value);
+  if(days===0) days=parseInt(document.getElementById('custom-days').value)||365;
+  const bench=parseFloat(document.getElementById('industry').value)||6;
+  if(!cogs){alert('请填写销售成本');return;}
+  if(!b&&!e){alert('请至少填写期初或期末库存');return;}
+  const avg=(b+e)/2||e||b;
+  const turnover=avg>0?cogs/avg:0;
+  const turnDays=turnover>0?days/turnover:0;
+  const vsRatio=bench>0?turnover/bench:1;
+
+  document.getElementById('r-avg').textContent=fmt(avg);
+  document.getElementById('r-turn').textContent=turnover.toFixed(2);
+  document.getElementById('r-days').textContent=turnDays.toFixed(1);
+
+  let vsText,vsTip,barW,advClass,advText;
+  if(vsRatio>=1.2){vsText='▲ 超出基准';vsTip='+'+((vsRatio-1)*100).toFixed(0)+'%';}
+  else if(vsRatio>=0.9){vsText='≈ 达到基准';vsTip='±10%范围内';}
+  else if(vsRatio>=0.6){vsText='▼ 低于基准';vsTip='-'+((1-vsRatio)*100).toFixed(0)+'%';}
+  else{vsText='⚠ 远低基准';vsTip='-'+((1-vsRatio)*100).toFixed(0)+'%';}
+
+  if(turnover>=bench*1.2){barW=95;advClass='good';advText='✅ 库存控制优秀！周转效率高于行业基准，资金占用合理，建议在此基础上关注安全库存设置，避免因库存过低导致缺货停线。';}
+  else if(turnover>=bench*0.9){barW=72;advClass='ok';advText='🟡 库存周转处于正常水平，接近行业基准。建议对C类物料做重点优化，减少慢动库存比例，通过ABC分类管理进一步提升效率。';}
+  else if(turnover>=bench*0.5){barW=45;advClass='bad';advText='🟠 库存周转率偏低，存在较多积压风险。建议：①排查呆滞料清单；②优化采购批量与频次；③对高值低动物料实施VMI或零库存管理。';}
+  else{barW=18;advClass='bad';advText='🔴 库存周转率严重偏低！可能存在大量呆滞料或超量备货。建议立即：①全面盘点库存；②启动呆滞料处理（降价促销/退供应商/报废）；③重建安全库存标准。';}
+
+  document.getElementById('r-vs').textContent=vsText;
+  document.getElementById('r-vs-tip').textContent=vsTip;
+  document.getElementById('bar-fill').style.width=barW+'%';
+  document.getElementById('bar-fill').style.background=barW>70?'#00b42a':barW>40?'#ffa940':'#ff4d4f';
+  const ab=document.getElementById('advice-box');
+  ab.className='advice-box '+advClass;
+  document.getElementById('advice-text').textContent=advText;
+  document.getElementById('result').style.display='block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function reset(){
+  ['cogs','inv_begin','inv_end','custom-days'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('result').style.display='none';
+}
+</script>
+</body>
+</html>
