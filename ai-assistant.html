@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI学习助手 - PMC冷老师</title>
+<style>
+:root{--blue:#1677ff;--blue2:#0a50d4;--blue-light:#e8f0fe;--green:#059669;--amber:#d97706;--red:#dc2626;--ink:#0f172a;--ink2:#475569;--ink3:#94a3b8;--paper:#f8fafc;--card:#ffffff;--border:#e2e8f0;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"Microsoft Yahei","PingFang SC",sans-serif;background:var(--paper);color:var(--ink);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:.8rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.topbar-left{display:flex;align-items:center;gap:.8rem;}
+.ai-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#0891b2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 2px rgba(22,119,255,.4)}50%{box-shadow:0 0 0 6px rgba(22,119,255,.1)}}
+.ai-info h1{font-size:.95rem;color:#fff;font-weight:700;}
+.ai-info p{font-size:.72rem;color:#94a3b8;}
+.online-dot{display:inline-block;width:6px;height:6px;background:#22c55e;border-radius:50%;margin-right:4px;animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.back-btn{color:#94a3b8;font-size:.82rem;text-decoration:none;padding:.4rem .9rem;border-radius:8px;border:1px solid #334155;transition:.2s;}
+.back-btn:hover{color:#fff;border-color:#475569;}
+.main{display:flex;flex:1;overflow:hidden;}
+.sidebar{width:260px;flex-shrink:0;background:var(--card);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.sb-section{padding:1rem;border-bottom:1px solid var(--border);}
+.sb-label{font-size:.7rem;color:var(--ink3);font-weight:700;letter-spacing:1.5px;margin-bottom:.65rem;}
+.key-row{display:flex;gap:.4rem;margin-bottom:.5rem;}
+.key-inp{flex:1;padding:.45rem .6rem;border:1.5px solid var(--border);border-radius:7px;font-size:.78rem;font-family:inherit;outline:none;transition:.2s;color:var(--ink);}
+.key-inp:focus{border-color:var(--blue);}
+.key-save{padding:.45rem .7rem;background:var(--blue);color:#fff;border:none;border-radius:7px;font-size:.75rem;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.key-save:hover{background:var(--blue2);}
+.key-st{font-size:.72rem;padding:.3rem .6rem;border-radius:6px;margin-bottom:.35rem;}
+.key-st.ok{background:#e6f9ee;color:#005a14;}
+.key-st.no{background:#fee2e2;color:#991b1b;}
+.key-tip{font-size:.7rem;color:var(--ink3);line-height:1.5;}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;}
+.mbtn{padding:.6rem .4rem;border-radius:9px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:.75rem;font-family:inherit;text-align:center;transition:.2s;color:var(--ink2);display:flex;flex-direction:column;align-items:center;gap:.2rem;}
+.mbtn .mi{font-size:1.1rem;}
+.mbtn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);}
+.mbtn.on{border-color:var(--blue);background:var(--blue);color:#fff;}
+.fg{margin-bottom:.6rem;}
+.fg label{font-size:.75rem;color:var(--ink2);display:block;margin-bottom:.25rem;}
+.fg select{width:100%;padding:.42rem .6rem;border:1.5px solid var(--border);border-radius:7px;font-size:.78rem;font-family:inherit;background:var(--paper);color:var(--ink);outline:none;}
+.gbtn{width:100%;padding:.6rem;background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;border:none;border-radius:9px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;}
+.gbtn:hover{opacity:.9;transform:translateY(-1px);}
+.qlist{display:flex;flex-direction:column;gap:.35rem;}
+.qb{padding:.5rem .7rem;border-radius:7px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:.75rem;font-family:inherit;text-align:left;transition:.2s;color:var(--ink2);line-height:1.4;}
+.qb:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light);transform:translateX(3px);}
+.chat-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.msgs{flex:1;overflow-y:auto;padding:1.2rem 1.5rem 1rem;display:flex;flex-direction:column;gap:1rem;}
+.msgs::-webkit-scrollbar{width:4px;}
+.msgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.msg{display:flex;gap:.7rem;max-width:88%;animation:mi .3s ease;}
+@keyframes mi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.u{align-self:flex-end;flex-direction:row-reverse;}
+.mav{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.85rem;}
+.msg.ai .mav{background:linear-gradient(135deg,var(--blue),#0891b2);}
+.msg.u .mav{background:linear-gradient(135deg,#7c3aed,#5b21b6);}
+.mbody{display:flex;flex-direction:column;gap:.2rem;}
+.mname{font-size:.68rem;color:var(--ink3);font-weight:600;}
+.msg.u .mname{text-align:right;}
+.bubble{padding:.8rem 1rem;border-radius:13px;font-size:.86rem;line-height:1.75;}
+.msg.ai .bubble{background:var(--card);border:1px solid var(--border);border-top-left-radius:3px;box-shadow:0 1px 6px rgba(0,0,0,.05);}
+.msg.u .bubble{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;border-top-right-radius:3px;}
+.bubble strong{font-weight:700;}
+.bubble h3{font-size:.88rem;color:var(--blue);margin:.7rem 0 .3rem;font-weight:700;}
+.msg.u .bubble h3{color:#fff;}
+.bubble ul,.bubble ol{padding-left:1.1rem;margin:.3rem 0;}
+.bubble li{margin-bottom:.2rem;}
+.welcome{background:linear-gradient(135deg,#f0f7ff,#e8f0fe);border:1px solid #b3cfff;border-radius:13px;padding:1.3rem;max-width:480px;align-self:flex-start;animation:mi .4s ease;}
+.wh{display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem;}
+.wav{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#0891b2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+.wh h2{font-size:.95rem;font-weight:700;}
+.wh p{font-size:.74rem;color:var(--ink2);}
+.wdesc{font-size:.83rem;color:#555;line-height:1.7;margin-bottom:.9rem;}
+.wmodes{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;}
+.wm{background:#fff;border:1.5px solid #deeeff;border-radius:9px;padding:.65rem .4rem;text-align:center;cursor:pointer;transition:.2s;}
+.wm:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 3px 10px rgba(22,119,255,.1);}
+.wmi{font-size:1.2rem;margin-bottom:.2rem;}
+.wm p{font-size:.72rem;color:var(--ink2);font-weight:600;}
+.typing{display:flex;gap:.7rem;align-items:center;padding:.5rem 1.5rem;opacity:0;transition:opacity .2s;flex-shrink:0;}
+.typing.show{opacity:1;}
+.dots{display:flex;gap:3px;}
+.dots span{width:5px;height:5px;background:var(--ink3);border-radius:50%;animation:db .8s infinite;}
+.dots span:nth-child(2){animation-delay:.15s;}
+.dots span:nth-child(3){animation-delay:.3s;}
+@keyframes db{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+.typt{font-size:.74rem;color:var(--ink3);}
+.inp-area{padding:.9rem 1.5rem;background:var(--card);border-top:1px solid var(--border);flex-shrink:0;}
+.inp-row{display:flex;gap:.6rem;align-items:flex-end;background:var(--paper);border:1.5px solid var(--border);border-radius:12px;padding:.6rem .9rem;transition:.2s;}
+.inp-row:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(22,119,255,.1);}
+#ui{flex:1;border:none;background:transparent;font-size:.88rem;font-family:inherit;color:var(--ink);outline:none;resize:none;max-height:100px;min-height:20px;line-height:1.5;}
+#ui::placeholder{color:var(--ink3);}
+.sbtn{width:34px;height:34px;border-radius:9px;border:none;background:var(--blue);color:#fff;cursor:pointer;font-size:.95rem;transition:.2s;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.sbtn:hover{background:var(--blue2);transform:scale(1.05);}
+.sbtn:disabled{background:var(--border);cursor:not-allowed;transform:none;}
+.hint{font-size:.68rem;color:var(--ink3);margin-top:.4rem;text-align:center;}
+.mtog{display:none;position:fixed;bottom:75px;left:12px;z-index:50;width:38px;height:38px;border-radius:50%;border:none;background:var(--blue);color:#fff;font-size:.9rem;cursor:pointer;box-shadow:0 3px 10px rgba(22,119,255,.4);}
+@media(max-width:680px){
+  .sidebar{position:fixed;left:-260px;top:57px;height:calc(100vh - 57px);z-index:80;transition:.3s;}
+  .sidebar.open{left:0;box-shadow:4px 0 20px rgba(0,0,0,.12);}
+  .mtog{display:flex;align-items:center;justify-content:center;}
+  .msgs{padding:.9rem 1rem;}
+  .inp-area{padding:.7rem 1rem;}
+  .msg{max-width:95%;}
+  .wmodes{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="ai-avatar">🤖</div>
+    <div class="ai-info">
+      <h1>冷老师的AI助手</h1>
+      <p><span class="online-dot"></span>在线 · PMC专属助手 · LongCat驱动</p>
+    </div>
+  </div>
+  <a href="index.html" class="back-btn">← 返回主页</a>
+</div>
+
+<div class="main">
+<div class="sidebar" id="sb">
+
+  <div class="sb-section">
+    <div class="sb-label">🔐 使用验证</div>
+    <div class="key-row">
+      <input class="key-inp" type="password" id="kInput" placeholder="输入使用密码">
+      <button class="key-save" onclick="saveKey()">验证</button>
+    </div>
+    <div class="key-st no" id="kSt">⚠ 请输入使用密码</div>
+    <div class="key-tip">输入密码后即可使用AI功能<br>每天限额30次 · 次日自动重置<br>没有密码请联系冷老师获取</div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-label">功能模式</div>
+    <div class="mode-grid">
+      <button class="mbtn on" onclick="sm('plan',this)"><span class="mi">📅</span>学习计划</button>
+      <button class="mbtn" onclick="sm('qa',this)"><span class="mi">💬</span>知识问答</button>
+      <button class="mbtn" onclick="sm('interview',this)"><span class="mi">🎯</span>面试模拟</button>
+      <button class="mbtn" onclick="sm('method',this)"><span class="mi">📚</span>方法论</button>
+    </div>
+  </div>
+
+  <div class="sb-section" id="pcfg">
+    <div class="sb-label">学习计划配置</div>
+    <div class="fg"><label>当前基础</label>
+      <select id="lv"><option value="zero">完全零基础</option><option value="basic">了解基本概念</option><option value="mid" selected>有工厂经验</option><option value="senior">有PMC经验</option></select>
+    </div>
+    <div class="fg"><label>每天学习时间</label>
+      <select id="tm"><option value="30">30分钟</option><option value="60" selected>1小时</option><option value="90">1.5小时</option><option value="120">2小时以上</option></select>
+    </div>
+    <div class="fg"><label>目标方向</label>
+      <select id="gl"><option value="job">入职PMC岗位</option><option value="upgrade">在职能力提升</option><option value="interview" selected>准备面试跳槽</option><option value="system">系统建知识体系</option></select>
+    </div>
+    <div class="fg"><label>计划周期</label>
+      <select id="wk"><option value="2">2周速成</option><option value="4" selected>4周系统学</option><option value="8">8周深度学</option></select>
+    </div>
+    <button class="gbtn" onclick="genPlan()">🚀 生成我的学习计划</button>
+  </div>
+
+  <div class="sb-section" style="flex:1">
+    <div class="sb-label">快捷提问</div>
+    <div class="qlist">
+      <button class="qb" onclick="qa('MRP净需求计算公式和步骤？')">🔢 MRP净需求公式</button>
+      <button class="qb" onclick="qa('安全库存怎么计算，设多少合适？')">📦 安全库存计算</button>
+      <button class="qb" onclick="qa('物料ABC分类怎么操作？')">📊 ABC分类方法</button>
+      <button class="qb" onclick="qa('生产计划达成率低如何分析原因？')">📋 达成率分析</button>
+      <button class="qb" onclick="qa('PMC面试最常问哪些题目怎么回答？')">🎯 面试高频题</button>
+      <button class="qb" onclick="qa('呆滞料怎么定义和处理？')">🗑 呆滞料处理</button>
+      <button class="qb" onclick="qa('计划跟单每天的标准工作流程？')">📝 日常工作流程</button>
+      <button class="qb" onclick="qa('BOM表怎么读和用于生产排产？')">📐 BOM表应用</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="chat-area">
+  <div class="msgs" id="msgs">
+    <div class="welcome">
+      <div class="wh"><div class="wav">🤖</div><div><h2>你好！我是冷老师的AI助手</h2><p>基于LongCat大模型 · PMC知识体系驱动</p></div></div>
+      <div class="wdesc">我可以帮你 <strong>制定学习计划</strong>、解答 <strong>PMC知识</strong>、模拟 <strong>面试练习</strong>、分享 <strong>实战方法论</strong>。<br><span style="color:#d97706;font-size:.8rem">🔐 请在左侧输入使用密码后开始对话</span></div>
+      <div class="wmodes">
+        <div class="wm" onclick="qs('plan')"><div class="wmi">📅</div><p>制定计划</p></div>
+        <div class="wm" onclick="qs('qa')"><div class="wmi">💬</div><p>知识问答</p></div>
+        <div class="wm" onclick="qs('interview')"><div class="wmi">🎯</div><p>面试模拟</p></div>
+        <div class="wm" onclick="qs('method')"><div class="wmi">📚</div><p>方法论</p></div>
+        <div class="wm" onclick="qa('我是零基础，想入职PMC，从哪开始学？')"><div class="wmi">🔰</div><p>零基础入门</p></div>
+        <div class="wm" onclick="qa('PMC计划跟单一天的工作是什么？')"><div class="wmi">⏰</div><p>一天工作流</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="typing" id="typing">
+    <div class="mav" style="background:linear-gradient(135deg,#1677ff,#0891b2);width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem">🤖</div>
+    <div><div class="dots"><span></span><span></span><span></span></div><div class="typt">冷老师AI正在思考...</div></div>
+  </div>
+
+  <div class="inp-area">
+    <div class="inp-row">
+      <textarea id="ui" placeholder="输入问题，Enter发送，Shift+Enter换行..." rows="1" onkeydown="hk(event)" oninput="ah(this)"></textarea>
+      <button class="sbtn" id="sb2" onclick="send()">➤</button>
+    </div>
+    <div class="hint">由LongCat（美团）大模型驱动 · 每天50万免费Token · 回答仅供学习参考</div>
+  </div>
+</div>
+</div>
+
+<button class="mtog" onclick="tsb()">☰</button>
+
+<script>
+// ── 核心配置 ──────────────────────────────
+// ⚠ 注意：Key写在这里，懂技术的访客可以在浏览器F12里看到
+// 保护措施：加了使用密码 + 每天限制次数
+var API_KEY = 'ak_2io8Se91f3PH1sQ6qM6K18jI0fY9s'; // ← 把这里换成你的新Key
+var ACCESS_PWD = 'pmc2026';  // ← 访客需要输入这个密码才能用AI（你可以自己改）
+var DAILY_LIMIT = 30;        // ← 每天最多用30次（防止被人刷额度）
+// ─────────────────────────────────────────
+
+var mode='plan', busy=false, hist=[];
+var SYS={
+  plan:'你是"冷老师的AI学习助手"，专注PMC生产计划与物料控制。有1年计划跟单实战经验，在蓝牙耳机电子制造行业工作过。\n\n知识体系来自33个实战视频：\n【生产计划与排产】排产通用知识、生产计划日常管理、计划评审看板、计划运作流程、计划员思维方式、接订单排产、新人避坑、追欠料\n【物料管控与库存】物料ABC分类、物料齐套率、物料时效管控、跟单工作流20项任务、采滞料处理、安全库存计算、库存管理、物控MRP表格上\n【MRP与BOM】物控MRP表格下、多阶BOM制作、生产工单制作、订单评审流程\n【工厂运营与ERP】ERP黑话入门、工厂黑话解读、年终大盘点、全产工单讲解\n【标准工时与效率】标准工时认识测算、标准工时制作、人机机法环分析\n【求职与职场成长】大专面试技巧、年薪30万成长路径、委外PMC优势、小白面试PMC\n\n生成学习计划时分周展示，对应具体视频，给每周重点和验收标准。语气亲切专业。',
+  qa:'你是"冷老师的AI学习助手"，PMC专家，有1年电子制造行业计划跟单经验。\n\n回答格式：核心答案→原理→实战案例（蓝牙耳机场景）→记忆口诀/公式\n\n核心公式：MRP净需求=毛需求-现有库存-在途库存+安全库存缺口；库存周转率=销售成本/平均库存；计划达成率=实际产量/计划产量×100%；ABC分类：A类70%价值20%品种，B类25%价值30%品种，C类5%价值50%品种\n\n物料三不：不断料、不呆料、不囤料。异常处理：10分钟响应→30分钟方案→4小时闭环\n\n语气自然亲切，偶尔用"我在工厂的时候..."分享经验。',
+  interview:'你是PMC面试官兼"冷老师的AI助手"，帮用户练习PMC计划跟单面试。规则：先出一道题等用户回答→点评亮点不足→给出满分答案→再出下一题。题库：自我介绍、日常工作流程、物料缺料怎么处理、如何提高达成率、什么是MRP、安全库存怎么设、BOM表作用、优缺点、遇到生产异常怎么跟进、为什么做PMC。语气严肃但鼓励。',
+  method:'你是"冷老师的AI助手"，分享PMC实战方法论，像资深老师傅传授心得。核心方法论：排产三原则（优先级/可行性/平衡性）、日常节奏（早会→2小时跟进→偏差5%响应→下班复盘）、异常SOP（10分钟响应→30分钟方案→4小时闭环）、物料铁三角（齐套核查/在途跟催/呆滞处理）、库存控制要点（安全库存计算/周转率目标6-12次）。语气有大师感，结合案例，通俗易懂。'
+};
+
+// 验证访问密码
+function saveKey(){
+  var pwd=document.getElementById('kInput').value.trim();
+  if(!pwd){alert('请输入使用密码');return;}
+  if(pwd !== ACCESS_PWD){
+    addAI('❌ 密码不正确，请联系冷老师获取使用密码。');
+    document.getElementById('kInput').value='';
+    return;
+  }
+  localStorage.setItem('lck_auth','1');
+  updateKSt(true);
+  addAI('✅ 验证成功！欢迎使用冷老师AI助手！\n\n你可以：\n• 左侧配置参数后点击生成学习计划\n• 直接输入任何PMC问题\n• 点击快捷提问快速开始');
+}
+function getKey(){
+  // 检查是否已通过密码验证
+  return localStorage.getItem('lck_auth')==='1' ? API_KEY : '';
+}
+function updateKSt(ok){
+  var el=document.getElementById('kSt');
+  if(ok){el.className='key-st ok';el.textContent='✅ 已验证，可以对话';}
+  else{el.className='key-st no';el.textContent='⚠ 请输入使用密码';}
+}
+
+// 每日使用次数控制
+function checkLimit(){
+  var today=new Date().toLocaleDateString();
+  var rec=JSON.parse(localStorage.getItem('lck_usage')||'{}');
+  if(rec.date!==today){rec={date:today,count:0};}
+  if(rec.count>=DAILY_LIMIT){
+    addAI('⏰ 今日免费使用次数已达上限（'+DAILY_LIMIT+'次），明天凌晨重置。\n\n感谢使用冷老师AI助手！');
+    return false;
+  }
+  rec.count++;
+  localStorage.setItem('lck_usage',JSON.stringify(rec));
+  // 更新显示
+  var remaining=DAILY_LIMIT-rec.count;
+  document.getElementById('kSt').textContent='✅ 已验证，今日剩余 '+remaining+' 次';
+  return true;
+}
+
+function sm(m,btn){
+  mode=m;
+  document.querySelectorAll('.mbtn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  document.getElementById('pcfg').style.display=m==='plan'?'block':'none';
+  var h={plan:'📅 学习计划模式：配置参数后点击生成',qa:'💬 问答模式：直接提问任何PMC知识点',interview:'🎯 面试模拟：输入"开始面试"即可',method:'📚 方法论模式：问我任何PMC实战方法'};
+  addAI(h[m]);
+  csb();
+}
+function qs(m){
+  var btns=document.querySelectorAll('.mbtn');
+  var map={plan:0,qa:1,interview:2,method:3};
+  sm(m,btns[map[m]]);
+  if(m==='interview') qa('开始面试模拟，请出第一道题');
+  if(m==='method') qa('给我介绍PMC核心方法论体系');
+}
+
+function genPlan(){
+  var lv=document.getElementById('lv');
+  var tm=document.getElementById('tm');
+  var gl=document.getElementById('gl');
+  var wk=document.getElementById('wk');
+  var p='请为我生成详细PMC学习计划：\n- 当前基础：'+lv.options[lv.selectedIndex].text+'\n- 每天时间：'+tm.options[tm.selectedIndex].text+'\n- 目标方向：'+gl.options[gl.selectedIndex].text+'\n- 计划周期：'+wk.options[wk.selectedIndex].text+'\n\n请分周展示，对应具体视频内容，每周给学习重点、推荐视频和验收标准。';
+  sendMsg(p,'🚀 帮我生成专属学习计划...');
+  csb();
+}
+
+function qa(q){sendMsg(q);csb();}
+
+function send(){
+  var el=document.getElementById('ui');
+  var t=el.value.trim();
+  if(!t||busy) return;
+  el.value='';ah(el);
+  sendMsg(t);
+}
+
+function sendMsg(content,display){
+  if(busy) return;
+  var key=getKey();
+  addUser(display||content);
+  if(!key){
+    addAI('🔐 请先在左侧输入使用密码验证身份，才能使用AI功能。\n\n没有密码？联系冷老师获取 😊');
+    return;
+  }
+  if(!checkLimit()) return;
+  busy=true;
+  document.getElementById('sb2').disabled=true;
+  showT(true);
+  hist.push({role:'user',content:content});
+
+  fetch('https://api.longcat.chat/openai/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+    body:JSON.stringify({
+      model:'LongCat-Flash-Chat',
+      max_tokens:1500,
+      temperature:0.7,
+      messages:[{role:'system',content:SYS[mode]}].concat(hist.slice(-8))
+    })
+  }).then(function(r){
+    if(!r.ok) return r.json().then(function(e){throw new Error(e&&e.error&&e.error.message||'HTTP '+r.status);});
+    return r.json();
+  }).then(function(d){
+    var reply=d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content||'未收到有效回复';
+    hist.push({role:'assistant',content:reply});
+    showT(false);
+    addAI(fmt(reply));
+  }).catch(function(e){
+    showT(false);
+    addAI('⚠️ 请求失败：'+e.message+'\n\n可能原因：\n• API Key不正确\n• 今日Token额度用完（每天凌晨刷新）\n• 网络问题\n\n请去LongCat平台「用量信息」页查看状态。');
+  }).finally(function(){
+    busy=false;
+    document.getElementById('sb2').disabled=false;
+  });
+}
+
+function addUser(t){
+  var el=document.createElement('div');
+  el.className='msg u';
+  el.innerHTML='<div class="mav">👤</div><div class="mbody"><div class="mname">你</div><div class="bubble">'+esc(t)+'</div></div>';
+  document.getElementById('msgs').appendChild(el);
+  scr();
+}
+function addAI(html){
+  var el=document.createElement('div');
+  el.className='msg ai';
+  el.innerHTML='<div class="mav">🤖</div><div class="mbody"><div class="mname">冷老师AI助手</div><div class="bubble">'+html+'</div></div>';
+  document.getElementById('msgs').appendChild(el);
+  scr();
+}
+function fmt(t){
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^#{1,3}\s+(.+)$/gm,'<h3>$1</h3>')
+    .replace(/^[-•*]\s+(.+)$/gm,'<li>$1</li>')
+    .replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+}
+function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
+function showT(s){document.getElementById('typing').classList.toggle('show',s);if(s)scr();}
+function scr(){var m=document.getElementById('msgs');setTimeout(function(){m.scrollTop=m.scrollHeight;},50);}
+function hk(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function ah(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+function tsb(){document.getElementById('sb').classList.toggle('open');}
+function csb(){document.getElementById('sb').classList.remove('open');}
+
+// 初始化
+(function(){
+  var auth=localStorage.getItem('lck_auth')==='1';
+  updateKSt(auth);
+  if(auth){
+    var today=new Date().toLocaleDateString();
+    var rec=JSON.parse(localStorage.getItem('lck_usage')||'{}');
+    if(rec.date===today){
+      var remaining=DAILY_LIMIT-rec.count;
+      document.getElementById('kSt').textContent='✅ 已验证，今日剩余 '+remaining+' 次';
+    }
+  }
+  document.getElementById('pcfg').style.display='block';
+})();
+</script>
+</body>
+</html>
