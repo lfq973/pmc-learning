@@ -208,11 +208,8 @@ body{font-family:"Microsoft Yahei","PingFang SC",sans-serif;background:var(--pap
 
 <script>
 // ── 核心配置 ──────────────────────────────
-// ⚠ 注意：Key写在这里，懂技术的访客可以在浏览器F12里看到
-// 保护措施：加了使用密码 + 每天限制次数
-var API_KEY = 'ak_28L9OM5Pq8KG8g77zD8Rq5P58Rh6C'; // ← 把这里换成你的新Key
-var ACCESS_PWD = 'pmc2026';  // ← 访客需要输入这个密码才能用AI（你可以自己改）
-var DAILY_LIMIT = 30;        // ← 每天最多用30次（防止被人刷额度）
+var ACCESS_PWD = 'pmc2026';  // 访问密码
+var DAILY_LIMIT = 30;        // 每天使用次数上限
 // ─────────────────────────────────────────
 
 var mode='plan', busy=false, hist=[];
@@ -237,8 +234,7 @@ function saveKey(){
   addAI('✅ 验证成功！欢迎使用冷老师AI助手！\n\n你可以：\n• 左侧配置参数后点击生成学习计划\n• 直接输入任何PMC问题\n• 点击快捷提问快速开始');
 }
 function getKey(){
-  // 检查是否已通过密码验证
-  return localStorage.getItem('lck_auth')==='1' ? API_KEY : '';
+  return localStorage.getItem('lck_auth')==='1';
 }
 function updateKSt(ok){
   var el=document.getElementById('kSt');
@@ -257,7 +253,6 @@ function checkLimit(){
   }
   rec.count++;
   localStorage.setItem('lck_usage',JSON.stringify(rec));
-  // 更新显示
   var remaining=DAILY_LIMIT-rec.count;
   document.getElementById('kSt').textContent='✅ 已验证，今日剩余 '+remaining+' 次';
   return true;
@@ -302,9 +297,9 @@ function send(){
 
 function sendMsg(content,display){
   if(busy) return;
-  var key=getKey();
+  var auth=getKey();
   addUser(display||content);
-  if(!key){
+  if(!auth){
     addAI('🔐 请先在左侧输入使用密码验证身份，才能使用AI功能。\n\n没有密码？联系冷老师获取 😊');
     return;
   }
@@ -314,9 +309,10 @@ function sendMsg(content,display){
   showT(true);
   hist.push({role:'user',content:content});
 
-  fetch('https://api.longcat.chat/openai/v1/chat/completions',{
+  // 请求自己的Vercel中转API，无跨域
+  fetch('https://pmc-learning.vercel.app/api/ai',{
     method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
       model:'LongCat-Flash-Chat',
       max_tokens:1500,
@@ -324,7 +320,7 @@ function sendMsg(content,display){
       messages:[{role:'system',content:SYS[mode]}].concat(hist.slice(-8))
     })
   }).then(function(r){
-    if(!r.ok) return r.json().then(function(e){throw new Error(e&&e.error&&e.error.message||'HTTP '+r.status);});
+    if(!r.ok) return r.json().then(function(e){throw new Error(e&&e.error||'HTTP '+r.status);});
     return r.json();
   }).then(function(d){
     var reply=d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content||'未收到有效回复';
@@ -333,7 +329,7 @@ function sendMsg(content,display){
     addAI(fmt(reply));
   }).catch(function(e){
     showT(false);
-    addAI('⚠️ 请求失败：'+e.message+'\n\n可能原因：\n• API Key不正确\n• 今日Token额度用完（每天凌晨刷新）\n• 网络问题\n\n请去LongCat平台「用量信息」页查看状态。');
+    addAI('⚠️ 请求失败：'+e.message+'\n\n可能原因：\n• API接口部署未完成\n• 环境变量配置错误\n• 网络问题\n\n请检查Vercel部署状态。');
   }).finally(function(){
     busy=false;
     document.getElementById('sb2').disabled=false;
