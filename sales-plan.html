@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>产销协同计划表 - PMC工具</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif;}
+body{background:#f4f6fb;padding:1.5rem 1rem;min-height:100vh;}
+.wrap{max-width:1000px;margin:0 auto;}
+.header{background:linear-gradient(135deg,#722ed1,#531dab);color:#fff;border-radius:16px 16px 0 0;padding:1.8rem 2rem;}
+.header h1{font-size:1.4rem;margin-bottom:.4rem;}
+.header p{font-size:.88rem;opacity:.85;}
+.body{background:#fff;border-radius:0 0 16px 16px;padding:2rem;border:1px solid #eaecf4;border-top:none;box-shadow:0 4px 20px rgba(0,0,0,.08);}
+
+.tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;border-bottom:2px solid #f0f0f0;padding-bottom:0;}
+.tab{padding:.6rem 1.2rem;border-radius:8px 8px 0 0;cursor:pointer;font-size:.9rem;font-weight:600;color:#888;border:none;background:none;font-family:inherit;transition:.2s;border-bottom:2px solid transparent;margin-bottom:-2px;}
+.tab.active{color:#722ed1;border-bottom-color:#722ed1;}
+
+.tab-panel{display:none;} .tab-panel.active{display:block;}
+
+.form-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem;}
+.form-group label{display:block;font-size:.85rem;color:#555;font-weight:600;margin-bottom:.4rem;}
+.form-group input,.form-group select{width:100%;padding:.65rem .9rem;border:1.5px solid #e0e4f0;border-radius:8px;font-size:.88rem;font-family:inherit;outline:none;}
+.form-group input:focus,.form-group select:focus{border-color:#722ed1;}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;}
+.kpi-card{border-radius:12px;padding:1.2rem;text-align:center;}
+.kpi-card.purple{background:linear-gradient(135deg,#722ed1,#531dab);color:#fff;}
+.kpi-card.blue{background:#f0f4ff;border:1px solid #d6e4ff;}
+.kpi-card.green{background:#f6ffed;border:1px solid #b7eb8f;}
+.kpi-card .kv{font-size:1.8rem;font-weight:700;}
+.kpi-card.purple .kv{color:#fff;} .kpi-card.blue .kv{color:#1677ff;} .kpi-card.green .kv{color:#389e0d;}
+.kpi-card .kl{font-size:.75rem;margin-top:.3rem;opacity:.75;}
+.kpi-card.purple .kl{color:rgba(255,255,255,.8);}
+
+.btn{padding:.55rem 1.1rem;border-radius:8px;border:none;cursor:pointer;font-size:.88rem;font-family:inherit;transition:.2s;font-weight:600;}
+.btn-purple{background:#722ed1;color:#fff;} .btn-purple:hover{background:#9254de;}
+.btn-outline{background:#fff;color:#666;border:1.5px solid #ddd;} .btn-outline:hover{border-color:#722ed1;color:#722ed1;}
+
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid #e0e4f0;margin-bottom:1.2rem;}
+table{width:100%;border-collapse:collapse;font-size:.86rem;}
+thead tr{background:#722ed1;color:#fff;}
+th{padding:.7rem .9rem;text-align:left;font-weight:600;white-space:nowrap;}
+tbody tr{border-bottom:1px solid #f0f2f8;} tbody tr:hover{background:#faf5ff;}
+td{padding:.6rem .9rem;vertical-align:middle;}
+td input{width:100%;border:none;background:transparent;font-size:.86rem;font-family:inherit;padding:.2rem .3rem;border-radius:4px;outline:none;}
+td input:focus{background:#f5eeff;}
+.gap-pos{color:#389e0d;font-weight:700;}
+.gap-neg{color:#cf1322;font-weight:700;}
+
+.tip-box{background:#f9f0ff;border-left:3px solid #722ed1;border-radius:0 8px 8px 0;padding:.8rem 1.1rem;font-size:.85rem;color:#531dab;margin-bottom:1.2rem;}
+
+.back{display:inline-flex;align-items:center;gap:.4rem;margin-top:1.5rem;color:#1677ff;font-size:.88rem;text-decoration:none;}
+.back:hover{text-decoration:underline;}
+
+.toolbar{display:flex;gap:.7rem;margin-bottom:1.2rem;flex-wrap:wrap;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>🔄 产销协同计划表</h1>
+    <p>销售需求与生产计划实时对齐，快速识别产销缺口，推动协同决策</p>
+  </div>
+  <div class="body">
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(this,'t1')">📊 产销对比总览</button>
+      <button class="tab" onclick="switchTab(this,'t2')">📋 产品明细计划</button>
+      <button class="tab" onclick="switchTab(this,'t3')">⚙️ 参数设置</button>
+    </div>
+
+    <!-- Tab1: 总览 -->
+    <div class="tab-panel active" id="t1">
+      <div class="kpi-grid">
+        <div class="kpi-card purple">
+          <div class="kv" id="kv-demand">—</div>
+          <div class="kl">本月销售需求总量</div>
+        </div>
+        <div class="kpi-card blue">
+          <div class="kv" id="kv-supply">—</div>
+          <div class="kl">本月生产计划总量</div>
+        </div>
+        <div class="kpi-card green">
+          <div class="kv" id="kv-gap">—</div>
+          <div class="kl">产销差额（产-销）</div>
+        </div>
+      </div>
+
+      <div class="tip-box" id="overview-tip">⚠️ 请在【产品明细计划】中填写数据，系统将自动计算产销总览。</div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>产品</th><th>销售需求</th><th>生产计划</th><th>现有库存</th><th>预计结存</th><th>产销差额</th><th>状态</th></tr></thead>
+          <tbody id="overview-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab2: 明细 -->
+    <div class="tab-panel" id="t2">
+      <div class="toolbar">
+        <button class="btn btn-purple" onclick="addProduct()">＋ 新增产品</button>
+        <button class="btn btn-outline" onclick="exportCSV()">⬇ 导出CSV</button>
+        <button class="btn btn-outline" onclick="clearProducts()">🗑 清空</button>
+      </div>
+
+      <div class="table-wrap">
+        <table id="detail-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th style="min-width:130px">产品名称</th>
+              <th style="min-width:90px">月度销售预测</th>
+              <th style="min-width:90px">已确认订单</th>
+              <th style="min-width:90px">生产计划量</th>
+              <th style="min-width:90px">现有库存</th>
+              <th style="min-width:90px">安全库存</th>
+              <th style="min-width:100px">负责人</th>
+              <th style="min-width:110px">备注</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="detail-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab3: 设置 -->
+    <div class="tab-panel" id="t3">
+      <div class="tip-box">在此设置本月基础参数，影响产销总览的计算逻辑。</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>计划月份</label>
+          <input type="month" id="plan-month">
+        </div>
+        <div class="form-group">
+          <label>产能利用率目标（%）</label>
+          <input type="number" id="cap-target" placeholder="85" value="85">
+        </div>
+        <div class="form-group">
+          <label>出货达成率目标（%）</label>
+          <input type="number" id="del-target" placeholder="98" value="98">
+        </div>
+        <div class="form-group">
+          <label>负责部门</label>
+          <input type="text" id="dept" placeholder="PMC部">
+        </div>
+      </div>
+      <button class="btn btn-purple" onclick="alert('参数已保存！')">保存设置</button>
+    </div>
+
+    <a href="index.html" class="back">← 返回首页</a>
+  </div>
+</div>
+
+<script>
+let products=[];
+let pc=1;
+
+function switchTab(btn,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+  if(id==='t1') renderOverview();
+}
+
+function addProduct(data){
+  const row=data||{id:pc++,name:'',forecast:0,confirmed:0,plan:0,stock:0,safe:0,owner:'',note:''};
+  products.push(row);
+  renderDetail();
+}
+
+function renderDetail(){
+  const tbody=document.getElementById('detail-body');
+  tbody.innerHTML='';
+  products.forEach((r,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="color:#aaa;font-size:.8rem">${i+1}</td>
+      <td><input value="${r.name}" onchange="upd(${i},'name',this.value)" placeholder="产品名称"></td>
+      <td><input type="number" value="${r.forecast||''}" onchange="upd(${i},'forecast',+this.value);renderOverview()" placeholder="0"></td>
+      <td><input type="number" value="${r.confirmed||''}" onchange="upd(${i},'confirmed',+this.value);renderOverview()" placeholder="0"></td>
+      <td><input type="number" value="${r.plan||''}" onchange="upd(${i},'plan',+this.value);renderOverview()" placeholder="0"></td>
+      <td><input type="number" value="${r.stock||''}" onchange="upd(${i},'stock',+this.value);renderOverview()" placeholder="0"></td>
+      <td><input type="number" value="${r.safe||''}" onchange="upd(${i},'safe',+this.value)" placeholder="0"></td>
+      <td><input value="${r.owner}" onchange="upd(${i},'owner',this.value)" placeholder="负责人"></td>
+      <td><input value="${r.note}" onchange="upd(${i},'note',this.value)" placeholder="备注"></td>
+      <td><button onclick="delProd(${i})" style="background:none;border:none;color:#ff4d4f;cursor:pointer">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderOverview(){
+  const tbody=document.getElementById('overview-body');
+  tbody.innerHTML='';
+  let totalDemand=0,totalSupply=0;
+  products.forEach(r=>{
+    const demand=Math.max(r.forecast||0,r.confirmed||0);
+    const supply=r.plan||0;
+    const stock=r.stock||0;
+    const ending=supply+stock-demand;
+    const gap=supply-demand;
+    totalDemand+=demand;totalSupply+=supply;
+    const status=gap>=0?'✅ 产能充足':'⚠️ 产能不足';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${r.name||'未命名产品'}</td>
+      <td>${demand.toLocaleString()}</td>
+      <td>${supply.toLocaleString()}</td>
+      <td>${stock.toLocaleString()}</td>
+      <td>${ending.toLocaleString()}</td>
+      <td class="${gap>=0?'gap-pos':'gap-neg'}">${gap>=0?'+':''}${gap.toLocaleString()}</td>
+      <td>${status}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  const totalGap=totalSupply-totalDemand;
+  document.getElementById('kv-demand').textContent=totalDemand.toLocaleString();
+  document.getElementById('kv-supply').textContent=totalSupply.toLocaleString();
+  document.getElementById('kv-gap').textContent=(totalGap>=0?'+':'')+totalGap.toLocaleString();
+  const tip=document.getElementById('overview-tip');
+  if(products.length===0){tip.textContent='⚠️ 请在【产品明细计划】中填写数据，系统将自动计算产销总览。';tip.style.background='#f9f0ff';}
+  else if(totalGap<0){tip.textContent='⚠️ 当前生产计划量低于销售需求！差额：'+totalGap.toLocaleString()+'，请尽快协调产能或调整排程。';tip.style.background='#fff2f0';tip.style.borderLeftColor='#ff4d4f';tip.style.color='#a8071a';}
+  else{tip.textContent='✅ 生产计划可覆盖销售需求，产销基本平衡。盈余：+'+totalGap.toLocaleString()+'，注意避免库存积压。';tip.style.background='#f6ffed';tip.style.borderLeftColor='#389e0d';tip.style.color='#135200';}
+}
+
+function upd(i,k,v){products[i][k]=v;}
+function delProd(i){products.splice(i,1);renderDetail();renderOverview();}
+function clearProducts(){if(confirm('确认清空所有产品？')){products=[];pc=1;renderDetail();renderOverview();}}
+
+function exportCSV(){
+  if(products.length===0){alert('暂无数据');return;}
+  const headers=['产品','销售预测','确认订单','生产计划','现有库存','安全库存','负责人','备注'];
+  const rows=[headers.join(',')];
+  products.forEach(r=>rows.push([r.name,r.forecast,r.confirmed,r.plan,r.stock,r.safe,r.owner,r.note].map(v=>'"'+(v||'').toString()+'"').join(',')));
+  const blob=new Blob(['\uFEFF'+rows.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='产销协同计划_'+new Date().toLocaleDateString('zh-CN').replace(/\//g,'-')+'.csv';
+  a.click();
+}
+
+// Init samples
+[{name:'蓝牙耳机A款',forecast:2000,confirmed:1800,plan:2100,stock:300,safe:200,owner:'张三',note:''},
+ {name:'蓝牙耳机B款',forecast:1500,confirmed:1200,plan:1400,stock:150,safe:150,owner:'李四',note:'注意备料'},
+ {name:'充电线套装',forecast:5000,confirmed:4500,plan:4800,stock:800,safe:500,owner:'王五',note:''}
+].forEach(d=>addProduct({id:pc++,...d}));
+renderOverview();
+
+// Set default month
+document.getElementById('plan-month').value=new Date().toISOString().slice(0,7);
+</script>
+</body>
+</html>
