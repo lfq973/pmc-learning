@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生产排程模板 - PMC工具</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft Yahei",sans-serif;}
+body{background:#f4f6fb;padding:1.5rem 1rem;min-height:100vh;}
+.wrap{max-width:960px;margin:0 auto;}
+.header{background:linear-gradient(135deg,#00b42a,#007d1c);color:#fff;border-radius:16px 16px 0 0;padding:1.8rem 2rem;}
+.header h1{font-size:1.4rem;margin-bottom:.4rem;}
+.header p{font-size:.88rem;opacity:.85;}
+.body{background:#fff;border-radius:0 0 16px 16px;padding:2rem;border:1px solid #eaecf4;border-top:none;box-shadow:0 4px 20px rgba(0,0,0,.08);}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:.7rem;margin-bottom:1.5rem;align-items:center;}
+.toolbar-left{display:flex;gap:.7rem;flex-wrap:wrap;flex:1;}
+.btn{padding:.55rem 1.1rem;border-radius:8px;border:none;cursor:pointer;font-size:.88rem;font-family:inherit;transition:.2s;font-weight:600;}
+.btn-green{background:#00b42a;color:#fff;} .btn-green:hover{background:#00961f;}
+.btn-blue{background:#1677ff;color:#fff;} .btn-blue:hover{background:#4096ff;}
+.btn-outline{background:#fff;color:#666;border:1.5px solid #ddd;} .btn-outline:hover{border-color:#1677ff;color:#1677ff;}
+.btn-red{background:#ff4d4f;color:#fff;} .btn-red:hover{background:#d9363e;}
+
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;margin-bottom:1.5rem;}
+.stat-card{background:#f8faff;border:1px solid #e0eaff;border-radius:10px;padding:.9rem 1rem;text-align:center;}
+.stat-card .s-val{font-size:1.5rem;font-weight:700;color:#1677ff;}
+.stat-card .s-lbl{font-size:.75rem;color:#888;margin-top:.2rem;}
+
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid #e0e4f0;}
+table{width:100%;border-collapse:collapse;font-size:.88rem;}
+thead tr{background:#1677ff;color:#fff;}
+th{padding:.75rem .8rem;text-align:left;font-weight:600;white-space:nowrap;}
+tbody tr{border-bottom:1px solid #f0f2f8;transition:.15s;}
+tbody tr:hover{background:#f8faff;}
+tbody tr:last-child{border-bottom:none;}
+td{padding:.6rem .8rem;vertical-align:middle;}
+td input,td select{width:100%;border:none;background:transparent;font-size:.88rem;font-family:inherit;padding:.2rem .3rem;border-radius:4px;outline:none;}
+td input:focus,td select:focus{background:#eef4ff;}
+
+.status-badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:.75rem;font-weight:600;}
+.s-pending{background:#fff8e6;color:#d48806;}
+.s-running{background:#e6f7ff;color:#096dd9;}
+.s-done{background:#f6ffed;color:#389e0d;}
+.s-delay{background:#fff2f0;color:#cf1322;}
+
+.progress-bar{background:#e0e4f0;border-radius:4px;height:8px;overflow:hidden;min-width:80px;}
+.progress-fill{height:100%;border-radius:4px;transition:width .3s;}
+
+.legend{display:flex;gap:1.2rem;flex-wrap:wrap;margin-top:1.2rem;font-size:.8rem;}
+.legend-item{display:flex;align-items:center;gap:.4rem;}
+.legend-dot{width:10px;height:10px;border-radius:50%;}
+
+.dl-tip{background:#f0fff4;border:1px solid #b7eb8f;border-radius:8px;padding:.8rem 1.1rem;font-size:.85rem;color:#389e0d;margin-top:1.2rem;}
+.back{display:inline-flex;align-items:center;gap:.4rem;margin-top:1.5rem;color:#1677ff;font-size:.88rem;text-decoration:none;}
+.back:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>📋 生产排程模板</h1>
+    <p>在线填写生产计划 · 实时统计达成率 · 一键导出CSV保存</p>
+  </div>
+  <div class="body">
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <button class="btn btn-green" onclick="addRow()">＋ 新增工单</button>
+        <button class="btn btn-blue" onclick="exportCSV()">⬇ 导出CSV</button>
+        <button class="btn btn-outline" onclick="clearAll()">🗑 清空表格</button>
+      </div>
+      <div style="font-size:.82rem;color:#aaa;">数据仅保存在当前浏览器，导出后请妥善保存</div>
+    </div>
+
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card"><div class="s-val" id="st-total">0</div><div class="s-lbl">工单总数</div></div>
+      <div class="stat-card"><div class="s-val" id="st-done" style="color:#00b42a">0</div><div class="s-lbl">已完成</div></div>
+      <div class="stat-card"><div class="s-val" id="st-rate" style="color:#1677ff">0%</div><div class="s-lbl">计划达成率</div></div>
+      <div class="stat-card"><div class="s-val" id="st-delay" style="color:#ff4d4f">0</div><div class="s-lbl">延期工单</div></div>
+    </div>
+
+    <div class="table-wrap">
+      <table id="schedule-table">
+        <thead>
+          <tr>
+            <th style="width:40px">#</th>
+            <th style="min-width:110px">工单号</th>
+            <th style="min-width:120px">产品名称</th>
+            <th style="min-width:80px">计划数量</th>
+            <th style="min-width:80px">已完成量</th>
+            <th style="min-width:100px">计划开始</th>
+            <th style="min-width:100px">计划完工</th>
+            <th style="min-width:80px">负责产线</th>
+            <th style="min-width:90px">状态</th>
+            <th style="min-width:100px">完成进度</th>
+            <th style="min-width:120px">备注/异常</th>
+            <th style="width:50px">操作</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#d48806"></span>待开工</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#096dd9"></span>生产中</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#389e0d"></span>已完成</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#cf1322"></span>延期</span>
+    </div>
+
+    <div class="dl-tip">💡 点击【导出CSV】可将当前排程数据保存为Excel可打开的文件，方便存档或打印。</div>
+    <a href="index.html" class="back">← 返回首页</a>
+  </div>
+</div>
+
+<script>
+let rows=[];
+let counter=1;
+
+const STATUS_MAP={pending:'待开工',running:'生产中',done:'已完成',delay:'延期'};
+const STATUS_CLASS={pending:'s-pending',running:'s-running',done:'s-done',delay:'s-delay'};
+
+function addRow(data){
+  const id=counter++;
+  const row=data||{id,wo:'WO-'+String(id).padStart(4,'0'),product:'',plan:0,done:0,start:'',end:'',line:'',status:'pending',note:''};
+  rows.push(row);
+  renderTable();
+}
+
+function renderTable(){
+  const tbody=document.getElementById('table-body');
+  tbody.innerHTML='';
+  rows.forEach((r,i)=>{
+    const pct=r.plan>0?Math.min(100,Math.round(r.done/r.plan*100)):0;
+    const barColor=pct>=100?'#00b42a':pct>=50?'#1677ff':'#ffa940';
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td style="color:#aaa;font-size:.8rem">${i+1}</td>
+      <td><input value="${r.wo}" onchange="upd(${i},'wo',this.value)" placeholder="工单号"></td>
+      <td><input value="${r.product}" onchange="upd(${i},'product',this.value)" placeholder="产品名称"></td>
+      <td><input type="number" value="${r.plan||''}" onchange="upd(${i},'plan',+this.value);renderTable()" placeholder="0"></td>
+      <td><input type="number" value="${r.done||''}" onchange="upd(${i},'done',+this.value);renderTable()" placeholder="0"></td>
+      <td><input type="date" value="${r.start}" onchange="upd(${i},'start',this.value)"></td>
+      <td><input type="date" value="${r.end}" onchange="upd(${i},'end',this.value)"></td>
+      <td><input value="${r.line}" onchange="upd(${i},'line',this.value)" placeholder="产线A"></td>
+      <td>
+        <select onchange="upd(${i},'status',this.value)">
+          ${Object.entries(STATUS_MAP).map(([v,t])=>`<option value="${v}"${r.status===v?' selected':''}>${t}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${barColor}"></div></div>
+        <div style="font-size:.7rem;color:#888;margin-top:2px;text-align:center">${pct}%</div>
+      </td>
+      <td><input value="${r.note}" onchange="upd(${i},'note',this.value)" placeholder="填写备注"></td>
+      <td><button onclick="delRow(${i})" style="background:none;border:none;color:#ff4d4f;cursor:pointer;font-size:1rem">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  updateStats();
+}
+
+function upd(i,key,val){rows[i][key]=val;}
+function delRow(i){rows.splice(i,1);renderTable();}
+function clearAll(){if(confirm('确认清空所有工单？')){rows=[];counter=1;renderTable();}}
+
+function updateStats(){
+  const total=rows.length;
+  const done=rows.filter(r=>r.status==='done').length;
+  const delay=rows.filter(r=>r.status==='delay').length;
+  const rate=total>0?Math.round(done/total*100):0;
+  document.getElementById('st-total').textContent=total;
+  document.getElementById('st-done').textContent=done;
+  document.getElementById('st-rate').textContent=rate+'%';
+  document.getElementById('st-delay').textContent=delay;
+}
+
+function exportCSV(){
+  if(rows.length===0){alert('表格为空，请先添加工单');return;}
+  const headers=['序号','工单号','产品名称','计划数量','已完成量','计划开始','计划完工','负责产线','状态','备注'];
+  const csvRows=[headers.join(',')];
+  rows.forEach((r,i)=>{
+    csvRows.push([i+1,r.wo,r.product,r.plan,r.done,r.start,r.end,r.line,STATUS_MAP[r.status]||r.status,r.note].map(v=>'"'+(v||'').toString().replace(/"/g,'""')+'"').join(','));
+  });
+  const bom='\uFEFF';
+  const blob=new Blob([bom+csvRows.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='生产排程计划_'+new Date().toLocaleDateString('zh-CN').replace(/\//g,'-')+'.csv';
+  a.click();
+}
+
+// Init with 3 sample rows
+['WO-0001','WO-0002','WO-0003'].forEach((wo,i)=>{
+  const today=new Date();
+  const start=new Date(today);start.setDate(today.getDate()-i*3);
+  const end=new Date(today);end.setDate(today.getDate()+3-i*2);
+  const fmt=d=>d.toISOString().split('T')[0];
+  const statuses=['running','pending','done'];
+  addRow({id:counter++,wo,product:['蓝牙耳机A款','蓝牙耳机B款','充电线套装'][i],plan:[500,300,1000][i],done:[280,0,1000][i],start:fmt(start),end:fmt(end),line:['产线A','产线B','产线A'][i],status:statuses[i],note:['正常推进','待物料到齐','已入库'][i]});
+});
+</script>
+</body>
+</html>
