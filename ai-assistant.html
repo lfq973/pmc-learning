@@ -207,10 +207,11 @@ body{font-family:"Microsoft Yahei","PingFang SC",sans-serif;background:var(--pap
 <button class="mtog" onclick="tsb()">☰</button>
 
 <script>
-// ── 核心配置 ──────────────────────────────
-var ACCESS_PWD = 'pmc2026';  // 访问密码
-var DAILY_LIMIT = 30;        // 每天使用次数上限
-// ─────────────────────────────────────────
+// ── 核心配置（填你自己的Key）──────────────
+var API_KEY = ak_2io8Se91f3PH1sQ6qM6K18jI0fY9s';
+var ACCESS_PWD = 'pmc2026';
+var DAILY_LIMIT = 30;
+// ────────────────────────────────────────
 
 var mode='plan', busy=false, hist=[];
 var SYS={
@@ -310,9 +311,9 @@ function sendMsg(content,display){
   hist.push({role:'user',content:content});
 
   // 请求自己的Vercel中转API，彻底解决跨域
-  fetch('https://pmc-learning.vercel.app/api/ai',{
+  fetch('https://api.longcat.chat/openai/v1/chat/completions',{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+API_KEY},
     body:JSON.stringify({
       model:'LongCat-Flash-Chat',
       max_tokens:1500,
@@ -329,7 +330,7 @@ function sendMsg(content,display){
     addAI(fmt(reply));
   }).catch(function(e){
     showT(false);
-    addAI('⚠️ 请求失败：'+e.message+'\n\n可能原因：\n• API接口部署未完成\n• 环境变量配置错误\n• 网络问题\n\n请检查Vercel部署状态。');
+    addAI('⚠️ 请求失败：'+e.message+'\n\n可能原因：\n• API Key不正确或已过期\n• 今日Token额度用完（每天凌晨自动重置）\n• 网络连接问题\n\n💡 去 longcat.chat/platform 查看Key状态和用量');
   }).finally(function(){
     busy=false;
     document.getElementById('sb2').disabled=false;
